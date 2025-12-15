@@ -15,14 +15,14 @@
 #
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
-from typing import NoReturn
+from typing import Never
 
 import pyrogram
 
 
 class Update:
-    def stop_propagation(self) -> NoReturn:
+    def stop_propagation(self) -> Never:
         raise pyrogram.StopPropagation
 
-    def continue_propagation(self) -> NoReturn:
+    def continue_propagation(self) -> Never:
         raise pyrogram.ContinuePropagation
