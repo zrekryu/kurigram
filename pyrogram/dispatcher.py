@@ -24,8 +24,8 @@ from operator import itemgetter
 
 import pyrogram
 from pyrogram import utils
-from pyrogram.handlers.handler import Handler
 from pyrogram.handlers import (
+    Handler,
     ErrorHandler, CallbackQueryHandler, MessageHandler, EditedMessageHandler, DeletedMessagesHandler,
     UserStatusHandler, RawUpdateHandler, InlineQueryHandler, PollHandler, PreCheckoutQueryHandler,
     ChosenInlineResultHandler, ChatMemberUpdatedHandler, ChatJoinRequestHandler, StoryHandler,
@@ -297,7 +297,7 @@ class Dispatcher:
 
             log.info("Stopped %s HandlerTasks", self.client.workers)
 
-    def add_handler(self, handler, group: int):
+    def add_handler(self, handler: Union[Handler, ErrorHandler], group: int):
         async def fn():
             for lock in self.locks_list:
                 await lock.acquire()
@@ -410,7 +410,7 @@ class Dispatcher:
             except Exception as e:
                 log.exception(e)
 
-    async def handle_update_handler_exception(self, exc, update_handler, args) -> None:
+    async def handle_update_handler_exception(self, exc: Exception, update_handler: Handler, args: Tuple[Any, ...]) -> None:
         handled = False
         try:
             for group in self.error_handlers_groups.values():
