@@ -59,6 +59,6 @@ class ErrorHandler(Handler):
 
         exceptions = exceptions or (Exception,)
         if not isinstance(exceptions, tuple):
-            exceptions = tuple(exceptions) if isinstance(exceptions, Sequence) else (exceptions,)
+            exceptions = (exceptions,)
 
         self.exceptions = exceptions
