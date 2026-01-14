@@ -502,8 +502,8 @@ class Message(Object, Update):
         upgraded_gift_purchase_offer (:obj:`~pyrogram.types.UpgradedGiftPurchaseOffer`, *optional*):
             Service message: An offer to purchase an upgraded gift was sent or received.
 
-        upgraded_gift_purchase_offer_declined (:obj:`~pyrogram.types.UpgradedGiftPurchaseOfferDeclined`, *optional*):
-            Service message: An offer to purchase a gift was declined or expired.
+        upgraded_gift_purchase_offer_rejected (:obj:`~pyrogram.types.UpgradedGiftPurchaseOfferRejected`, *optional*):
+            Service message: An offer to purchase a gift was rejected or expired.
 
         business_connection_id (``str``, *optional*):
             Unique identifier of the business connection from which the message was received.
@@ -556,6 +556,10 @@ class Message(Object, Update):
 
         repeat_period (``int``, *optional*):
             Period after which the message will be sent again in seconds.
+
+        summary_language_code (``str``, *optional*):
+            IETF language tag of the message language on which it can be summarized.
+            None if summary isn't available for the message.
     """
     def __init__(
         self,
@@ -695,7 +699,7 @@ class Message(Object, Update):
         giveaway_prize_stars: Optional["types.GiveawayPrizeStars"] = None,
         screenshot_taken: Optional["types.ScreenshotTaken"] = None,
         upgraded_gift_purchase_offer: Optional["types.UpgradedGiftPurchaseOffer"] = None,
-        upgraded_gift_purchase_offer_declined: Optional["types.UpgradedGiftPurchaseOfferDeclined"] = None,
+        upgraded_gift_purchase_offer_rejected: Optional["types.UpgradedGiftPurchaseOfferRejected"] = None,
         business_connection_id: Optional[str] = None,
         reply_markup: Optional[
             Union[
@@ -716,6 +720,7 @@ class Message(Object, Update):
         suggested_post_info: Optional["types.SuggestedPostInfo"] = None,
         channel_post: Optional[bool] = None,
         repeat_period: Optional[int] = None,
+        summary_language_code: Optional[str] = None,
         raw: Optional["raw.types.Message"] = None
     ):
         super().__init__(client)
@@ -808,7 +813,7 @@ class Message(Object, Update):
         self.giveaway_prize_stars = giveaway_prize_stars
         self.screenshot_taken = screenshot_taken
         self.upgraded_gift_purchase_offer = upgraded_gift_purchase_offer
-        self.upgraded_gift_purchase_offer_declined = upgraded_gift_purchase_offer_declined
+        self.upgraded_gift_purchase_offer_rejected = upgraded_gift_purchase_offer_rejected
         self.business_connection_id = business_connection_id
         self.reply_markup = reply_markup
         self.forum_topic_created = forum_topic_created
@@ -868,6 +873,7 @@ class Message(Object, Update):
         self.suggested_post_info = suggested_post_info
         self.channel_post = channel_post
         self.repeat_period = repeat_period
+        self.summary_language_code = summary_language_code
         self.raw = raw
 
     @staticmethod
@@ -946,7 +952,7 @@ class Message(Object, Update):
         chat_shared = None
         screenshot_taken = None
         upgraded_gift_purchase_offer = None
-        upgraded_gift_purchase_offer_declined = None
+        upgraded_gift_purchase_offer_rejected = None
         # passport_data_send = None
         # passport_data_received = None
         chat_set_theme = None
@@ -1150,8 +1156,8 @@ class Message(Object, Update):
                 chats
             )
         elif isinstance(action, raw.types.MessageActionStarGiftPurchaseOfferDeclined):
-            service_type = enums.MessageServiceType.UPGRADED_GIFT_PURCHASE_OFFER_DECLINED
-            upgraded_gift_purchase_offer_declined = await types.UpgradedGiftPurchaseOfferDeclined._parse(
+            service_type = enums.MessageServiceType.UPGRADED_GIFT_PURCHASE_OFFER_REJECTED
+            upgraded_gift_purchase_offer_rejected = await types.UpgradedGiftPurchaseOfferRejected._parse(
                 client,
                 action,
                 getattr(message.reply_to, "reply_to_msg_id", None),
@@ -1176,7 +1182,7 @@ class Message(Object, Update):
         elif isinstance(action, (raw.types.MessageActionStarGift, raw.types.MessageActionStarGiftUnique)):
             service_type = enums.MessageServiceType.GIFT
             is_prepaid_upgrade=action.prepaid_upgrade
-            is_from_auction=action.auction_acquired
+            is_from_auction=getattr(action, "auction_acquired", None)
             gift = await types.Gift._parse_action(client, message, users, chats)
         elif isinstance(action, raw.types.MessageActionSuggestProfilePhoto):
             service_type = enums.MessageServiceType.SUGGEST_PROFILE_PHOTO
@@ -1273,7 +1279,7 @@ class Message(Object, Update):
             chat_shared=chat_shared,
             screenshot_taken=screenshot_taken,
             upgraded_gift_purchase_offer=upgraded_gift_purchase_offer,
-            upgraded_gift_purchase_offer_declined=upgraded_gift_purchase_offer_declined,
+            upgraded_gift_purchase_offer_rejected=upgraded_gift_purchase_offer_rejected,
             chat_set_theme=chat_set_theme,
             chat_set_background=chat_set_background,
             set_message_auto_delete_time=set_message_auto_delete_time,
@@ -1627,6 +1633,7 @@ class Message(Object, Update):
             suggested_post_info=types.SuggestedPostInfo._parse(message.suggested_post),
             channel_post=message.post,
             repeat_period=message.schedule_repeat_period,
+            summary_language_code=message.summary_from_language,
             raw=message,
             client=client
         )
@@ -3857,6 +3864,10 @@ class Message(Object, Update):
         self,
         latitude: float,
         longitude: float,
+        horizontal_accuracy: Optional[float] = None,
+        live_period: Optional[int] = None,
+        heading: Optional[int] = None,
+        proximity_alert_radius: Optional[int] = None,
         disable_notification: Optional[bool] = None,
         message_thread_id: Optional[int] = None,
         direct_messages_topic_id: Optional[int] = None,
@@ -3892,6 +3903,22 @@ class Message(Object, Update):
 
             longitude (``float``):
                 Longitude of the location.
+
+            horizontal_accuracy (``float``, *optional*):
+                The radius of uncertainty for the location, measured in meters, 0-1500.
+
+            live_period (``int``, *optional*):
+                For live locations, a period for which the location can be updated, in seconds.
+                Must be between 60 and 86400 for a temporary live location, 0x7FFFFFFF for permanent live location.
+
+            heading (``int``, *optional*):
+                For live locations, a direction in which the user is moving, in degrees.
+                Must be between 1 and 360 if specified.
+
+            proximity_alert_radius (``int``, *optional*):
+                For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.
+                Must be between 1 and 100000 if specified.
+                Can't be enabled in channels and Saved Messages.
 
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
@@ -3955,6 +3982,10 @@ class Message(Object, Update):
             chat_id=self.chat.id,
             latitude=latitude,
             longitude=longitude,
+            horizontal_accuracy=horizontal_accuracy,
+            live_period=live_period,
+            heading=heading,
+            proximity_alert_radius=proximity_alert_radius,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             direct_messages_topic_id=direct_messages_topic_id,
@@ -3974,6 +4005,10 @@ class Message(Object, Update):
         self,
         latitude: float,
         longitude: float,
+        horizontal_accuracy: Optional[float] = None,
+        live_period: Optional[int] = None,
+        heading: Optional[int] = None,
+        proximity_alert_radius: Optional[int] = None,
         disable_notification: Optional[bool] = None,
         message_thread_id: Optional[int] = None,
         direct_messages_topic_id: Optional[int] = None,
@@ -4003,6 +4038,22 @@ class Message(Object, Update):
 
             longitude (``float``):
                 Longitude of the location.
+
+            horizontal_accuracy (``float``, *optional*):
+                The radius of uncertainty for the location, measured in meters, 0-1500.
+
+            live_period (``int``, *optional*):
+                For live locations, a period for which the location can be updated, in seconds.
+                Must be between 60 and 86400 for a temporary live location, 0x7FFFFFFF for permanent live location.
+
+            heading (``int``, *optional*):
+                For live locations, a direction in which the user is moving, in degrees.
+                Must be between 1 and 360 if specified.
+
+            proximity_alert_radius (``int``, *optional*):
+                For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.
+                Must be between 1 and 100000 if specified.
+                Can't be enabled in channels and Saved Messages.
 
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
@@ -4052,6 +4103,10 @@ class Message(Object, Update):
             chat_id=self.chat.id,
             latitude=latitude,
             longitude=longitude,
+            horizontal_accuracy=horizontal_accuracy,
+            live_period=live_period,
+            heading=heading,
+            proximity_alert_radius=proximity_alert_radius,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             direct_messages_topic_id=direct_messages_topic_id,
@@ -8281,6 +8336,86 @@ class Message(Object, Update):
             reply_markup=reply_markup
         )
 
+    async def edit_live_location(
+        self,
+        latitude: float,
+        longitude: float,
+        horizontal_accuracy: Optional[float] = None,
+        live_period: Optional[int] = None,
+        heading: Optional[int] = None,
+        proximity_alert_radius: Optional[int] = None
+    ) -> "Message":
+        """Use this method to edit live location messages.
+
+        Parameters:
+            latitude (``float``):
+                Latitude of the location.
+
+            longitude (``float``):
+                Longitude of the location.
+
+            horizontal_accuracy (``float``, *optional*):
+                The radius of uncertainty for the location, measured in meters, 0-1500.
+
+            live_period (``int``, *optional*):
+                New period in seconds during which the location can be updated, starting from the message send date.
+                If 0x7FFFFFFF is specified, then the location can be updated forever.
+                Otherwise, the new value must not exceed the current ``live_period`` by more than a day,
+                and the live location expiration date must remain within the next 90 days.
+                If not specified, then ``live_period`` remains unchanged.
+
+            heading (``int``, *optional*):
+                For live locations, a direction in which the user is moving, in degrees.
+                Must be between 1 and 360 if specified.
+
+            proximity_alert_radius (``int``, *optional*):
+                For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.
+                Must be between 1 and 100000 if specified.
+                Can't be enabled in channels and Saved Messages.
+
+        Returns:
+            On success, the edited :obj:`~pyrogram.types.Message` is returned.
+        """
+        r = await self._client.invoke(
+            raw.functions.messages.EditMessage(
+                peer=await self._client.resolve_peer(self.chat.id),
+                id=self.id,
+                media=raw.types.InputMediaGeoLive(
+                    geo_point=raw.types.InputGeoPoint(
+                        lat=latitude,
+                        long=longitude,
+                        accuracy_radius=horizontal_accuracy
+                    ),
+                    heading=heading,
+                    period=live_period,
+                    proximity_notification_radius=proximity_alert_radius
+                )
+            )
+        )
+
+        return next(iter(await utils.parse_messages(client=self._client, messages=r)), None)
+
+    async def stop_live_location(
+        self
+    ) -> "Message":
+        """Use this method to stop updating a live location message before live_period expires.
+
+        Returns:
+            On success, the edited :obj:`~pyrogram.types.Message` is returned.
+        """
+        r = await self._client.invoke(
+            raw.functions.messages.EditMessage(
+                peer=await self._client.resolve_peer(self.chat.id),
+                id=self.id,
+                media=raw.types.InputMediaGeoLive(
+                    geo_point=raw.types.InputGeoPointEmpty(),
+                    stopped=True
+                )
+            )
+        )
+
+        return next(iter(await utils.parse_messages(client=self._client, messages=r)), None)
+
     async def forward(
         self,
         chat_id: Union[int, str],
@@ -9180,4 +9315,59 @@ class Message(Object, Update):
         return await self._client.send_payment_form(
             payment_form_id=form.id,
             input_invoice=invoice
+        )
+
+    async def accept_gift_purchase_offer(self) -> "types.Message":
+        """Shortcut for method :obj:`~pyrogram.Client.process_gift_purchase_offer` will automatically fill method attributes:
+
+        * message_id
+
+        Returns:
+            :obj:`~pyrogram.types.Message`: On success, the sent message is returned.
+        """
+        return await self._client.process_gift_purchase_offer(
+            message_id=self.id,
+            accept=True
+        )
+
+    async def reject_gift_purchase_offer(self) -> "types.Message":
+        """Shortcut for method :obj:`~pyrogram.Client.process_gift_purchase_offer` will automatically fill method attributes:
+
+        * message_id
+
+        Returns:
+            :obj:`~pyrogram.types.Message`: On success, the sent message is returned.
+        """
+        return await self._client.process_gift_purchase_offer(
+            message_id=self.id,
+            accept=False
+        )
+
+    async def summarize(self, translate_to_language_code: str) -> "types.FormattedText":
+        """Shortcut for method :obj:`~pyrogram.Client.summarize_message` will automatically fill method attributes:
+
+        * chat_id
+        * message_id
+
+        Parameters:
+            translate_to_language_code (``str``):
+                Language code of the language to which the message is translated.
+                Must be one of "af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn", "bs", "bg", "ca", "ceb", "zh-CN", "zh", "zh-Hans", "zh-TW", "zh-Hant", "co", "hr", "cs", "da", "nl", "en", "eo", "et",
+                "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "he", "iw", "hi", "hmn", "hu", "is", "ig", "id", "in", "ga", "it", "ja", "jv", "kn", "kk", "km", "rw", "ko",
+                "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg", "ms", "ml", "mt", "mi", "mr", "mn", "my", "ne", "no", "ny", "or", "ps", "fa", "pl", "pt", "pa", "ro", "ru", "sm", "gd", "sr",
+                "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "tt", "te", "th", "tr", "tk", "uk", "ur", "ug", "uz", "vi", "cy", "xh", "yi", "ji", "yo", "zu"
+
+        Returns:
+            :obj:`~pyrogram.types.FormattedText`: On success, the sent message is returned.
+
+        Raises:
+            ValueError: In case of this message can't be summarized.
+        """
+        if not self.summary_language_code:
+            raise ValueError("This message can't be summarized.")
+
+        return await self._client.summarize_message(
+            chat_id=self.chat.id,
+            message_id=self.id,
+            translate_to_language_code=translate_to_language_code
         )

@@ -399,7 +399,7 @@ class Gift(Object):
             last_sale_date=utils.timestamp_to_datetime(star_gift.last_sale_date),
             locked_until_date=utils.timestamp_to_datetime(star_gift.locked_until_date),
             publisher_chat=types.Chat._parse_chat(client, chats.get(utils.get_raw_peer_id(star_gift.released_by))),
-            auction_info=await types.GiftAuction._parse(star_gift),
+            auction_info=types.GiftAuction._parse(star_gift),
             upgrade_variant_count=star_gift.upgrade_variants,
             raw=star_gift,
             client=client
@@ -428,8 +428,8 @@ class Gift(Object):
                 [await types.GiftAttribute._parse(client, attr, users, chats) for attr in star_gift.attributes]
             ) or None,
             number=star_gift.availability_issued,
-            total_upgraded_count=star_gift.availability_total,
-            max_upgraded_count=star_gift.availability_issued,
+            total_upgraded_count=star_gift.availability_issued,
+            max_upgraded_count=star_gift.availability_total,
             is_premium=star_gift.require_premium,
             is_theme_available=star_gift.theme_available,
             used_theme_chat_id=utils.get_peer_id(star_gift.theme_peer) if star_gift.theme_peer else None,
