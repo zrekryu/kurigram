@@ -1,0 +1,28 @@
+{notice}
+
+{warning}
+
+from importlib import import_module
+
+
+layer = {layer}
+
+
+class LazyObject(dict):
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        if isinstance(value, str):
+            path, name = value.rsplit(".", 1)
+            module = import_module(path)
+
+            value = getattr(module, name)
+            self[key] = value
+
+        return value
+
+
+objects = LazyObject(
+    {{
+        {objects}
+    }}
+)
