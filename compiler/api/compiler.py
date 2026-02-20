@@ -597,73 +597,145 @@ def start(format: bool = False):
 
         d[c.namespace].append(c.name)
 
+    with open(HOME_PATH / "template/lazy_importer_init.txt") as f:
+        init_template = f.read()
+
     for namespace, types in namespaces_to_types.items():
         with open(DESTINATION_PATH / "base" / namespace / "__init__.py", "w") as f:
-            f.write(f"{notice}\n\n")
-            f.write(f"{WARNING}\n\n")
-
+            #f.write(f"{notice}\n\n")
+            #f.write(f"{WARNING}\n\n")
+            name_to_module = {}
+            module_all = []
             for t in types:
                 module = t
 
                 if module == "Updates":
                     module = "UpdatesT"
 
-                f.write(f"from .{snake(module)} import {t}\n")
+                #f.write(f"from .{snake(module)} import {t}\n")
+                name_to_module[t] = snake(module)
+                module_all.append(t)
 
+            #if not namespace:
+            #    f.write(f"from . import {', '.join(filter(bool, namespaces_to_types))}")
             if not namespace:
-                f.write(f"from . import {', '.join(filter(bool, namespaces_to_types))}")
+                for name in filter(bool, namespaces_to_constructors):
+                    name_to_module[name] = name
+
+            template = init_template.format(
+                notice=notice,
+                warning=WARNING,
+                _name_to_module=json.dumps(name_to_module, indent=4),
+                __all__=json.dumps(module_all, indent=4)
+            )
+            f.write(template)
 
     for namespace, types in namespaces_to_constructors.items():
         with open(DESTINATION_PATH / "types" / namespace / "__init__.py", "w") as f:
-            f.write(f"{notice}\n\n")
-            f.write(f"{WARNING}\n\n")
-
+            #f.write(f"{notice}\n\n")
+            #f.write(f"{WARNING}\n\n")
+            name_to_module = {}
+            module_all = []
             for t in types:
                 module = t
 
                 if module == "Updates":
                     module = "UpdatesT"
 
-                f.write(f"from .{snake(module)} import {t}\n")
+                #f.write(f"from .{snake(module)} import {t}\n")
 
+                name_to_module[t] = snake(module)
+                module_all.append(t)
+
+            #if not namespace:
+            #    f.write(f"from . import {', '.join(filter(bool, namespaces_to_constructors))}\n")
             if not namespace:
-                f.write(f"from . import {', '.join(filter(bool, namespaces_to_constructors))}\n")
+                for name in filter(bool, namespaces_to_constructors):
+                    name_to_module[name] = name
+
+            template = init_template.format(
+                notice=notice,
+                warning=WARNING,
+                _name_to_module=json.dumps(name_to_module, indent=4),
+                __all__=json.dumps(module_all, indent=4)
+            )
+            f.write(template)
+
 
     for namespace, types in namespaces_to_functions.items():
         with open(DESTINATION_PATH / "functions" / namespace / "__init__.py", "w") as f:
-            f.write(f"{notice}\n\n")
-            f.write(f"{WARNING}\n\n")
-
+            #f.write(f"{notice}\n\n")
+            #f.write(f"{WARNING}\n\n")
+            name_to_module = {}
+            module_all = []
             for t in types:
                 module = t
 
                 if module == "Updates":
                     module = "UpdatesT"
 
-                f.write(f"from .{snake(module)} import {t}\n")
+                #f.write(f"from .{snake(module)} import {t}\n")
+                name_to_module[t] = snake(module)
+                module_all.append(t)
 
+            #if not namespace:
+            #    f.write(f"from . import {', '.join(filter(bool, namespaces_to_functions))}")
             if not namespace:
-                f.write(f"from . import {', '.join(filter(bool, namespaces_to_functions))}")
+                for name in filter(bool, namespaces_to_constructors):
+                    name_to_module[name] = name
 
-    with open(DESTINATION_PATH / "all.py", "w", encoding="utf-8") as f:
-        f.write(notice + "\n\n")
-        f.write(WARNING + "\n\n")
-        f.write(f"layer = {layer}\n\n")
-        f.write("objects = {")
+            template = init_template.format(
+                notice=notice,
+                warning=WARNING,
+                _name_to_module=json.dumps(name_to_module, indent=4),
+                __all__=json.dumps(module_all, indent=4)
+            )
+            f.write(template)
 
-        for c in combinators:
-            f.write(f'\n    {c.id}: "pyrogram.raw.{c.section}.{c.qualname}",')
+    with (
+        open(DESTINATION_PATH / "all.py", "w", encoding="utf-8") as f,
+        open(HOME_PATH / "template/all.txt") as all_template
+    ):
+        #f.write(notice + "\n\n")
+        #f.write(WARNING + "\n\n")
+        #f.write(f"layer = {layer}\n\n")
+        #f.write("objects = {")
 
-        f.write('\n    0xbc799737: "pyrogram.raw.core.BoolFalse",')
-        f.write('\n    0x997275b5: "pyrogram.raw.core.BoolTrue",')
-        f.write('\n    0x1cb5c415: "pyrogram.raw.core.Vector",')
-        f.write('\n    0x73f1f8dc: "pyrogram.raw.core.MsgContainer",')
-        f.write('\n    0xae500895: "pyrogram.raw.core.FutureSalts",')
-        f.write('\n    0x0949d9dc: "pyrogram.raw.core.FutureSalt",')
-        f.write('\n    0x3072cfa1: "pyrogram.raw.core.GzipPacked",')
-        f.write('\n    0x5bb8e511: "pyrogram.raw.core.Message",')
+        #for c in combinators:
+        #    f.write(f'\n    {c.id}: "pyrogram.raw.{c.section}.{c.qualname}",')
 
-        f.write("\n}\n")
+        #f.write('\n    0xbc799737: "pyrogram.raw.core.BoolFalse",')
+        #f.write('\n    0x997275b5: "pyrogram.raw.core.BoolTrue",')
+        #f.write('\n    0x1cb5c415: "pyrogram.raw.core.Vector",')
+        #f.write('\n    0x73f1f8dc: "pyrogram.raw.core.MsgContainer",')
+        #f.write('\n    0xae500895: "pyrogram.raw.core.FutureSalts",')
+        #f.write('\n    0x0949d9dc: "pyrogram.raw.core.FutureSalt",')
+        #f.write('\n    0x3072cfa1: "pyrogram.raw.core.GzipPacked",')
+        #f.write('\n    0x5bb8e511: "pyrogram.raw.core.Message",')
+
+        #f.write("\n}\n")
+        objects = {
+            int(c.id, base=16): f"pyrogram.raw.{c.section}.{c.qualname}"
+            for c in combinators
+        }
+        objects[0xbc799737] = "pyrogram.raw.core.BoolFalse"
+        objects[0x997275b5] = "pyrogram.raw.core.BoolTrue"
+        objects[0x1cb5c415] = "pyrogram.raw.core.Vector"
+        objects[0x73f1f8dc] = "pyrogram.raw.core.MsgContainer"
+        objects[0xae500895] = "pyrogram.raw.core.FutureSalts"
+        objects[0x0949d9dc] = "pyrogram.raw.core.FutureSalt"
+        objects[0x3072cfa1] = "pyrogram.raw.core.GzipPacked"
+        objects[0x5bb8e511] = "pyrogram.raw.core.Message"
+
+        template = all_template.read().format(
+            notice=notice,
+            warning=WARNING,
+            layer=layer,
+            objects=",\n        ".join(
+                f"{key}: {value!r}" for key, value in objects.items()
+            )
+        )
+        f.write(template)
 
 
 if "__main__" == __name__:
