@@ -16,6 +16,8 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Sequence, Union
 
 from pyrogram.filters import Filter
@@ -58,30 +60,16 @@ class ErrorHandler(Handler):
         handler (:obj:`~pyrogram.handlers.handler.Handler`):
             The Handler instance from which the exception was raised.
 
-        update (:obj:`~pyrogram.raw.base.Update`):
-            The received update, which can be one of the many single Updates listed in the
-            :obj:`~pyrogram.raw.base.Update` base type.
-
-        users (``dict``):
-            Dictionary of all :obj:`~pyrogram.raw.base.User` mentioned in the update.
-            You can access extra info about the user (such as *first_name*, *last_name*, etc...) by using
-            the IDs you find in the *update* argument (e.g.: *users[1768841572]*).
-
-        chats (``dict``):
-            Dictionary of all :obj:`~pyrogram.raw.base.Chat` mentioned in the update.
-            You can access extra info about the chat (such as *title*, *participants_count*, etc...)
-            by using the IDs you find in the *update* argument (e.g.: *chats[1701277281]*).
-
+        context (:obj:`~pyrogram.types.update_contexts.base.BaseUpdateContext`):
+            Base update context object to access update arguments.
     """
 
     def __init__(
         self,
         callback: Callable[
             [
-                "pyrogram.Client",
-                "raw.base.Update",
-                Dict[int, "raw.base.User"],
-                Dict[int, "raw.base.Chat"],
+                pyrogram.Client,
+                BaseUpdateContext,
             ],
             Any,
         ],
