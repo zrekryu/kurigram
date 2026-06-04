@@ -16,6 +16,8 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Callable, Dict
 
 from .handler import Handler
@@ -23,6 +25,7 @@ from .handler import Handler
 if TYPE_CHECKING:
     import pyrogram
     from pyrogram import raw
+    from pyrogram.types import RawUpdateContext
 
 
 class RawUpdateHandler(Handler):
@@ -46,19 +49,7 @@ class RawUpdateHandler(Handler):
         client (:obj:`~pyrogram.Client`):
             The Client itself, useful when you want to call other API methods inside the update handler.
 
-        update (:obj:`~pyrogram.raw.base.Update`):
-            The received update, which can be one of the many single Updates listed in the
-            :obj:`~pyrogram.raw.base.Update` base type.
-
-        users (``dict``):
-            Dictionary of all :obj:`~pyrogram.raw.base.User` mentioned in the update.
-            You can access extra info about the user (such as *first_name*, *last_name*, etc...) by using
-            the IDs you find in the *update* argument (e.g.: *users[1768841572]*).
-
-        chats (``dict``):
-            Dictionary of all :obj:`~pyrogram.raw.base.Chat` mentioned in the update.
-            You can access extra info about the chat (such as *title*, *participants_count*, etc...)
-            by using the IDs you find in the *update* argument (e.g.: *chats[1701277281]*).
+        context: The received raw update context.
 
     .. note::
 
@@ -73,15 +64,7 @@ class RawUpdateHandler(Handler):
 
     def __init__(
         self,
-        callback: Callable[
-            [
-                "pyrogram.Client",
-                "raw.base.Update",
-                Dict[int, "raw.base.User"],
-                Dict[int, "raw.base.Chat"],
-            ],
-            Any,
-        ],
+        callback: Callable[[pyrogram.Client, RawUpdateContext], None],
         filters=None,
     ):
         super().__init__(callback, filters)

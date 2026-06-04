@@ -52,7 +52,7 @@ from pyrogram.handlers import (
     StoryHandler,
     UserStatusHandler,
 )
-from pyrogram.types.update_contexts import BaseUpdateContext, MessageUpdateContext, CallbackQueryUpdateContext
+from pyrogram.types import BaseUpdateContext, MessageUpdateContext, CallbackQueryUpdateContext
 from pyrogram.raw.types import (
     UpdateBotBusinessConnect,
     UpdateBotCallbackQuery,

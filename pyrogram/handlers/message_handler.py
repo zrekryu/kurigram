@@ -16,6 +16,8 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Callable
 
 from .handler import Handler
@@ -23,6 +25,7 @@ from .handler import Handler
 if TYPE_CHECKING:
     import pyrogram
     from pyrogram import types
+    from pyrogram.types import MessageUpdateContext
 
 
 class MessageHandler(Handler):
@@ -45,11 +48,11 @@ class MessageHandler(Handler):
         client (:obj:`~pyrogram.Client`):
             The Client itself, useful when you want to call other API methods inside the message handler.
 
-        message (:obj:`~pyrogram.types.Message`):
-            The received message.
+        context (:obj:`~pyrogram.types.MessageUpdateContext`):
+            The received message update context.
     """
 
     def __init__(
-        self, callback: Callable[["pyrogram.Client", "types.Message"], Any], filters=None
+        self, callback: Callable[[pyrogram.Client, MessageUpdateContext], None], filters=None
     ):
         super().__init__(callback, filters)
