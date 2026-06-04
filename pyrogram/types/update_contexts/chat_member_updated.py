@@ -5,10 +5,11 @@ from typing import TYPE_CHECKING
 
 from .base import BaseUpdateContext
 
+
 if TYPE_CHECKING:
-    from pyrogram.types import Message
+    from pyrogram.types import ChatMemberUpdated
 
 
 @dataclass(frozen=True, slots=True)
-class MessageUpdateContext(BaseUpdateContext):
-    message: Message
+class ChatMemberUpdatedUpdateContext(BaseUpdateContext):
+    chat_member_updated: ChatMemberUpdated

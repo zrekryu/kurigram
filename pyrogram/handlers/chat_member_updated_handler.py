@@ -15,14 +15,15 @@
 #
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Callable
 
 from .handler import Handler
 
 if TYPE_CHECKING:
-    import pyrogram
-    from pyrogram import types
+    from pyrogram import Client
+    from pyrogram.types import ChatMemberUpdatedUpdateContext
 
 
 class ChatMemberUpdatedHandler(Handler):
@@ -45,11 +46,11 @@ class ChatMemberUpdatedHandler(Handler):
         client (:obj:`~pyrogram.Client`):
             The Client itself, useful when you want to call other API methods inside the handler.
 
-        chat_member_updated (:obj:`~pyrogram.types.ChatMemberUpdated`):
-            The received chat member update.
+        chat_member_updated (:obj:`~pyrogram.types.ChatMemberUpdatedUpdateContext`):
+            The received chat member update context.
     """
 
     def __init__(
-        self, callback: Callable[["pyrogram.Client", "types.ChatMemberUpdated"], Any], filters=None
+        self, callback: Callable[[Client, ChatMemberUpdatedContext], None], filters=None
     ):
         super().__init__(callback, filters)

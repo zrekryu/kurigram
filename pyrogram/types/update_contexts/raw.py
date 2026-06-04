@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from pyrogram.raw.base import Chat, Update, User
+if TYPE_CHECKING:
+    from pyrogram.raw.base import Chat, Update, User
 
 
 @dataclass(frozen=True, slots=True)
